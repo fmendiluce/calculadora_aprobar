@@ -86,7 +86,7 @@
         <label>Número total de preguntas:</label>
         <input type="number" id="totalPreguntas" min="1" placeholder="Ej. 50">
         
-        <label>Cada cuántos fallos se resta un punto:</label>
+        <label>¿Cada cuántos fallos descuenta un punto?</label>
         <input type="number" id="fallosPorResta" min="1" placeholder="Ej. 3">
         
         <label>Puntuación mínima para aprobar:</label>
@@ -106,8 +106,8 @@
         <label>Total Respuestas:</label>
         <input type="number" id="totalRespuestas" min="1" placeholder="Ej. 50">
         
-        <label>Descuento por fallo:</label>
-        <input type="number" id="descuentoPorFallo" step="0.1" placeholder="Ej. 0.5">
+        <label>¿Cada cuántos fallos descuenta un punto?</label>
+        <input type="number" id="fallosPorRestaFinal" min="1" placeholder="Ej. 3">
         
         <button onclick="calcularNotaFinal()">Calcular Nota Final 💯</button>
         <p id="notaTexto">Tu nota final es:</p>
@@ -173,20 +173,22 @@
             let aciertos = parseInt(document.getElementById("aciertos").value);
             let fallos = parseInt(document.getElementById("fallos").value);
             let totalRespuestas = parseInt(document.getElementById("totalRespuestas").value);
-            let descuentoPorFallo = parseFloat(document.getElementById("descuentoPorFallo").value);
+            let fallosPorResta = parseInt(document.getElementById("fallosPorRestaFinal").value);
 
-            if (isNaN(aciertos) || isNaN(fallos) || isNaN(totalRespuestas) || isNaN(descuentoPorFallo) || totalRespuestas <= 0) {
+            if (isNaN(aciertos) || isNaN(fallos) || isNaN(totalRespuestas) || isNaN(fallosPorResta) || totalRespuestas <= 0) {
                 document.getElementById("notaFinal").innerText = "⚠️ Por favor, ingresa valores válidos.";
                 return;
             }
 
-            // Calcular la nota final
-            let penalizacion = fallos * descuentoPorFallo;
+            // Calcular la penalización con el nuevo sistema de fallos
+            let penalizacion = Math.floor(fallos / fallosPorResta);
             let notaFinal = aciertos - penalizacion;
             if (notaFinal < 0) notaFinal = 0; // Para que no dé un número negativo
 
             let porcentajeNota = (notaFinal / totalRespuestas) * 10; // Para un sistema de 0 a 10
-            document.getElementById("notaFinal").innerHTML = `<span id="notaNumero">${porcentajeNota.toFixed(2)} (${notaFinal.toFixed(2)} / ${totalRespuestas})</span>`;
+
+            // Ahora solo el número de la nota será grande y destacado
+            document.getElementById("notaFinal").innerHTML = `<span id="notaNumero">${notaFinal.toFixed(2)}</span> / ${totalRespuestas} (${porcentajeNota.toFixed(2)}%)`;
         }
     </script>
 </body>
