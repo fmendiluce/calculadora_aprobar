@@ -64,6 +64,20 @@
             font-weight: bold;
             font-size: 18px;
         }
+
+        /* Estilo para la nota final, solo el número del porcentaje */
+        #notaFinal {
+            font-size: 2em; /* Aumenta el tamaño de la fuente del número */
+            font-weight: bold; /* Hacemos la fuente en negrita */
+            color: #ffcd02; /* Color llamativo para la nota (amarillo) */
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5); /* Agregamos una sombra */
+            margin-top: 20px;
+        }
+        
+        #notaTexto {
+            font-size: 1.2em; /* Tamaño normal para el texto */
+            color: #fff; /* Texto normal */
+        }
     </style>
 </head>
 <body>
@@ -81,6 +95,23 @@
         <button onclick="generarTablaResultados()">Generar Tabla 📊</button>
         <p id="resultado"></p>
         <table id="tablaResultados"></table>
+
+        <h2>💯 Calcular Nota Final del Examen 💯</h2>
+        <label>Aciertos:</label>
+        <input type="number" id="aciertos" min="0" placeholder="Ej. 30">
+        
+        <label>Fallos:</label>
+        <input type="number" id="fallos" min="0" placeholder="Ej. 5">
+        
+        <label>Total Respuestas:</label>
+        <input type="number" id="totalRespuestas" min="1" placeholder="Ej. 50">
+        
+        <label>Descuento por fallo:</label>
+        <input type="number" id="descuentoPorFallo" step="0.1" placeholder="Ej. 0.5">
+        
+        <button onclick="calcularNotaFinal()">Calcular Nota Final 💯</button>
+        <p id="notaTexto">Tu nota final es:</p>
+        <p id="notaFinal"></p>
     </div>
 
     <script>
@@ -135,6 +166,27 @@
                 
                 tabla.innerHTML += fila;
             }
+        }
+
+        // Nueva función para calcular la nota final
+        function calcularNotaFinal() {
+            let aciertos = parseInt(document.getElementById("aciertos").value);
+            let fallos = parseInt(document.getElementById("fallos").value);
+            let totalRespuestas = parseInt(document.getElementById("totalRespuestas").value);
+            let descuentoPorFallo = parseFloat(document.getElementById("descuentoPorFallo").value);
+
+            if (isNaN(aciertos) || isNaN(fallos) || isNaN(totalRespuestas) || isNaN(descuentoPorFallo) || totalRespuestas <= 0) {
+                document.getElementById("notaFinal").innerText = "⚠️ Por favor, ingresa valores válidos.";
+                return;
+            }
+
+            // Calcular la nota final
+            let penalizacion = fallos * descuentoPorFallo;
+            let notaFinal = aciertos - penalizacion;
+            if (notaFinal < 0) notaFinal = 0; // Para que no dé un número negativo
+
+            let porcentajeNota = (notaFinal / totalRespuestas) * 10; // Para un sistema de 0 a 10
+            document.getElementById("notaFinal").innerHTML = `<span id="notaNumero">${porcentajeNota.toFixed(2)} (${notaFinal.toFixed(2)} / ${totalRespuestas})</span>`;
         }
     </script>
 </body>
