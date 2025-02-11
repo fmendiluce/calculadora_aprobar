@@ -78,11 +78,20 @@
             font-size: 1.2em; /* Tamaño normal para el texto */
             color: #fff; /* Texto normal */
         }
+        
+        .explicacion {
+            font-size: 0.8em;
+            color: #fff;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>📊 Calculadora para aprobar 📊</h2>
+        <p class="explicacion">Esta herramienta te permite generar una tabla de 10 opciones que calcula cuántos aciertos necesitas en un examen para aprobar, teniendo en cuenta el número de fallos permitidos y cómo se descuentan los puntos por cada fallo.</p>
+        
         <label>Número total de preguntas:</label>
         <input type="number" id="totalPreguntas" min="1" placeholder="Ej. 50">
         
@@ -96,7 +105,9 @@
         <p id="resultado"></p>
         <table id="tablaResultados"></table>
 
-        <h2>💯 Calcular Nota Final del Examen 💯</h2>
+        <h2>💯 Calcular Nota del Examen 💯</h2>
+        <p class="explicacion">Este apartado te ayuda a calcular la nota final de tu examen, considerando los aciertos, fallos, el número total de respuestas y cada cuántos fallos descuentan un punto.</p>
+        
         <label>Aciertos:</label>
         <input type="number" id="aciertos" min="0" placeholder="Ej. 30">
         
