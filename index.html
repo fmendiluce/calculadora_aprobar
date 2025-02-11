@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Aprobación</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            background: linear-gradient(to right, #04549a, #04549a),
+                        url('./images/emoji-examen.png'); /* Cambia la ruta si es necesario */
+            background-size: cover, 80px;
+            background-repeat: no-repeat, no-repeat;
+            background-position: center, top right;
+            color: #fff;
+            padding: 20px; 
+        }
+        .container { 
+            max-width: 400px; 
+            margin: auto; 
+            padding: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 30px; 
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        input { 
+            width: 100%; 
+            padding: 10px; 
+            margin: 10px 0; 
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button { 
+            padding: 10px; 
+            background: #28a745; 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            font-size: 16px;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        button:hover { background: #218838; }
+        #resultado, #tablaResultados { 
+            margin-top: 20px; 
+            font-weight: bold; 
+            font-size: 18px;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            border: 1px solid #fff;
+            text-align: center;
+        }
+
+        /* Aquí agregamos el ajuste para mover la tabla hacia la izquierda */
+        #tablaResultados {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>📊 Calculadora de Aprobación 📊</h2>
+        <label>Número total de preguntas:</label>
+        <input type="number" id="totalPreguntas" min="1" placeholder="Ej. 50">
+        
+        <label>Cada cuántos fallos se resta un punto:</label>
+        <input type="number" id="fallosPorResta" min="1" placeholder="Ej. 3">
+        
+        <label>Puntuación mínima para aprobar:</label>
+        <input type="number" id="puntuacionMinima" step="0.01" placeholder="Ej. 5.0">
+        
+        <button onclick="generarTablaResultados()">Generar Tabla 📊</button>
+        <p id="resultado"></p>
+        <table id="tablaResultados"></table>
+    </div>
+
+    <script>
+        function calcularAprobacion(total, respondidas, fallosPorResta, minima) {
+            let aciertosNecesarios = 0;
+            
+            for (let aciertos = 0; aciertos <= respondidas; aciertos++) {
+                let fallos = respondidas - aciertos;
+                let penalizacion = Math.floor(fallos / fallosPorResta);
+                let puntuacionFinal = aciertos - penalizacion;
+                
+                if (puntuacionFinal >= minima) {
+                    aciertosNecesarios = aciertos;
+                    break;
+                }
+            }
+            
+            let porcentaje = (aciertosNecesarios / respondidas) * 100;
+            return { aciertosNecesarios, porcentaje };
+        }
+        
+        function generarTablaResultados() {
+            let total = parseInt(document.getElementById("totalPreguntas").value);
+            let fallosPorResta = parseInt(document.getElementById("fallosPorResta").value);
+            let minima = parseFloat(document.getElementById("puntuacionMinima").value);
+            
+            if (isNaN(total) || isNaN(fallosPorResta) || isNaN(minima) || total <= 0 || fallosPorResta <= 0) {
+                document.getElementById("resultado").innerText = "⚠️ Por favor, ingresa valores válidos.";
+                return;
+            }
+            
+            let tabla = document.getElementById("tablaResultados");
+            tabla.innerHTML = "";
+            
+            let encabezado = `<tr>
+                <th>% Respondido</th>
+                <th>Preguntas Respondidas</th>
+                <th>Aciertos Necesarios</th>
+            </tr>`;
+            tabla.innerHTML += encabezado;
+            
+            for (let i = 0; i <= 9; i++) {
+                let porcentajeRespondido = 100 - (i * 5);
+                let respondidas = Math.round((porcentajeRespondido / 100) * total);
+                let resultado = calcularAprobacion(total, respondidas, fallosPorResta, minima);
+                
+                let fila = `<tr>
+                    <td>${porcentajeRespondido}%</td>
+                    <td>${respondidas}</td>
+                    <td>${resultado.aciertosNecesarios}</td>
+                </tr>`;
+                
+                tabla.innerHTML += fila;
+            }
+        }
+    </script>
+</body>
+</html>
