@@ -57,28 +57,17 @@
             border: 1px solid #fff;
             text-align: center;
         }
-
-        /* Aquí agregamos el ajuste para mover la tabla hacia la izquierda */
-        #tablaResultados {
-            margin-top: 20px;
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        /* Estilo para la nota final, solo el número del porcentaje */
         #notaFinal {
-            font-size: 2em; /* Aumenta el tamaño de la fuente del número */
-            font-weight: bold; /* Hacemos la fuente en negrita */
-            color: #ffcd02; /* Color llamativo para la nota (amarillo) */
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5); /* Agregamos una sombra */
+            font-size: 2em; 
+            font-weight: bold; 
+            color: #ffcd02; 
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5); 
             margin-top: 20px;
         }
-        
         #notaTexto {
-            font-size: 1.2em; /* Tamaño normal para el texto */
-            color: #fff; /* Texto normal */
+            font-size: 1.2em; 
+            color: #fff;
         }
-        
         .explicacion {
             font-size: 0.8em;
             color: #fff;
@@ -95,8 +84,8 @@
         <label>Número total de preguntas:</label>
         <input type="number" id="totalPreguntas" min="1" placeholder="Ej. 50">
         
-        <label>¿Cada cuántos fallos descuenta un punto?</label>
-        <input type="number" id="fallosPorResta" min="1" placeholder="Ej. 3">
+        <label>Fracción de penalización (Ej. 1/4):</label>
+        <input type="text" id="fraccionPenalizacion" placeholder="Ej. 1/4">
         
         <label>Puntuación mínima para aprobar:</label>
         <input type="number" id="puntuacionMinima" step="0.01" placeholder="Ej. 5.0">
@@ -106,7 +95,7 @@
         <table id="tablaResultados"></table>
 
         <h2>💯 Calcular Nota del Examen 💯</h2>
-        <p class="explicacion">Este apartado te ayuda a calcular la nota final de tu examen, considerando los aciertos, fallos, el número total de respuestas y cada cuántos fallos descuentan un punto.</p>
+        <p class="explicacion">Este apartado te ayuda a calcular la nota final de tu examen, considerando los aciertos, fallos, el número total de respuestas y la fracción de penalización.</p>
         
         <label>Aciertos:</label>
         <input type="number" id="aciertos" min="0" placeholder="Ej. 30">
@@ -117,8 +106,8 @@
         <label>Total Respuestas:</label>
         <input type="number" id="totalRespuestas" min="1" placeholder="Ej. 50">
         
-        <label>¿Cada cuántos fallos descuenta un punto?</label>
-        <input type="number" id="fallosPorRestaFinal" min="1" placeholder="Ej. 3">
+        <label>Fracción de penalización final (Ej. 1/4):</label>
+        <input type="text" id="fraccionPenalizacionFinal" placeholder="Ej. 1/4">
         
         <button onclick="calcularNotaFinal()">Calcular Nota Final 💯</button>
         <p id="notaTexto">Tu nota final es:</p>
@@ -126,12 +115,14 @@
     </div>
 
     <script>
-        function calcularAprobacion(total, respondidas, fallosPorResta, minima) {
+        // Función para calcular la penalización con fracción
+        function calcularAprobacion(total, respondidas, fraccionPenalizacion, minima) {
+            let [numerador, denominador] = fraccionPenalizacion.split('/').map(Number); 
             let aciertosNecesarios = 0;
             
             for (let aciertos = 0; aciertos <= respondidas; aciertos++) {
                 let fallos = respondidas - aciertos;
-                let penalizacion = Math.floor(fallos / fallosPorResta);
+                let penalizacion = (fallos / denominador) * numerador; // Penalización precisa con fracción
                 let puntuacionFinal = aciertos - penalizacion;
                 
                 if (puntuacionFinal >= minima) {
@@ -146,28 +137,29 @@
         
         function generarTablaResultados() {
             let total = parseInt(document.getElementById("totalPreguntas").value);
-            let fallosPorResta = parseInt(document.getElementById("fallosPorResta").value);
+            let fraccionPenalizacion = document.getElementById("fraccionPenalizacion").value;
             let minima = parseFloat(document.getElementById("puntuacionMinima").value);
             
-            if (isNaN(total) || isNaN(fallosPorResta) || isNaN(minima) || total <= 0 || fallosPorResta <= 0) {
+            if (isNaN(total) || !fraccionPenalizacion.includes('/') || isNaN(minima) || total <= 0) {
                 document.getElementById("resultado").innerText = "⚠️ Por favor, ingresa valores válidos.";
                 return;
             }
-            
+
+            let [numerador, denominador] = fraccionPenalizacion.split('/').map(Number); // Desglosamos la fracción
             let tabla = document.getElementById("tablaResultados");
             tabla.innerHTML = "";
-            
+
             let encabezado = `<tr>
                 <th>% Respondido</th>
                 <th>Preguntas Respondidas</th>
                 <th>Aciertos Necesarios</th>
             </tr>`;
             tabla.innerHTML += encabezado;
-            
+
             for (let i = 0; i <= 9; i++) {
                 let porcentajeRespondido = 100 - (i * 5);
                 let respondidas = Math.round((porcentajeRespondido / 100) * total);
-                let resultado = calcularAprobacion(total, respondidas, fallosPorResta, minima);
+                let resultado = calcularAprobacion(total, respondidas, fraccionPenalizacion, minima);
                 
                 let fila = `<tr>
                     <td>${porcentajeRespondido}%</td>
@@ -184,21 +176,20 @@
             let aciertos = parseInt(document.getElementById("aciertos").value);
             let fallos = parseInt(document.getElementById("fallos").value);
             let totalRespuestas = parseInt(document.getElementById("totalRespuestas").value);
-            let fallosPorResta = parseInt(document.getElementById("fallosPorRestaFinal").value);
+            let fraccionPenalizacionFinal = document.getElementById("fraccionPenalizacionFinal").value;
 
-            if (isNaN(aciertos) || isNaN(fallos) || isNaN(totalRespuestas) || isNaN(fallosPorResta) || totalRespuestas <= 0) {
+            if (isNaN(aciertos) || isNaN(fallos) || isNaN(totalRespuestas) || !fraccionPenalizacionFinal.includes('/')) {
                 document.getElementById("notaFinal").innerText = "⚠️ Por favor, ingresa valores válidos.";
                 return;
             }
 
-            // Calcular la penalización con el nuevo sistema de fallos
-            let penalizacion = Math.floor(fallos / fallosPorResta);
+            let [numerador, denominador] = fraccionPenalizacionFinal.split('/').map(Number); // Desglosamos la fracción
+            let penalizacion = (fallos / denominador) * numerador; // Penalización precisa con fracción
             let notaFinal = aciertos - penalizacion;
             if (notaFinal < 0) notaFinal = 0; // Para que no dé un número negativo
 
             let porcentajeNota = (notaFinal / totalRespuestas) * 10; // Para un sistema de 0 a 10
 
-            // Ahora solo el número de la nota será grande y destacado
             document.getElementById("notaFinal").innerHTML = `<span id="notaNumero">${notaFinal.toFixed(2)}</span> / ${totalRespuestas} (${porcentajeNota.toFixed(2)}%)`;
         }
     </script>
